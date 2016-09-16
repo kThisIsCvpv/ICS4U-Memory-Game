@@ -1,5 +1,9 @@
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -18,6 +22,8 @@ public class MemoryGame {
 
 	public static final int AMOUNT_OF_ROWS = 4; // Constant amount of rows of cards
 	public static final int AMOUNT_OF_COLS = 4; // Constant amount of columns of cards
+
+	public static File SCORES_FILE = new File("scores.txt");
 
 	/**
 	 * The Main Method
@@ -104,6 +110,9 @@ public class MemoryGame {
 				System.out.println("The game has ended in a draw ( " + playerAPoints + " to " + playerBPoints + " )."); // The game ends in a tie.
 			}
 
+			updateScores(playerAPoints); // Update the scores in the file.
+			updateScores(playerBPoints);
+
 			System.out.println(); // Spacer
 
 			System.out.print("Would you like to play again? (Y/N): "); // Asks the user if they would like to play again.
@@ -178,5 +187,39 @@ public class MemoryGame {
 		}
 
 		System.out.println(); // Spacer
+	}
+
+	/**
+	 * Update the scores file with a new score.
+	 * @param newScore An integer with the new score.
+	 * @throws IOException Something went wrong with locating the file.
+	 */
+	public static void updateScores(int newScore) throws IOException {
+
+		if (!SCORES_FILE.exists()) {// Check if the scores file does not exist.
+			SCORES_FILE.createNewFile(); // Creates a new file.
+		}
+
+		Scanner scanner = new Scanner(SCORES_FILE); // Declares a scanner to scan the file.
+
+		List<Integer> currentScores = new ArrayList<Integer>(); // This is an list to store the scores.
+		while (scanner.hasNextLine()) { // Check that the scanner has another line.
+			String nextLine = scanner.nextLine(); // Reads the scanner's next line.
+			currentScores.add(Integer.parseInt(nextLine)); // Add the score to the list of scores.
+		}
+
+		scanner.close(); // Close the scanner.
+
+		currentScores.add(newScore); // Add the new score to the list.
+		Collections.sort(currentScores); // Sort the list from least to greatest.
+
+		PrintWriter pw = new PrintWriter(SCORES_FILE); // Declares a print writer to write to the file.
+
+		int newSize = currentScores.size() > 10 ? 10 : currentScores.size(); // This is the maximum amount of lines to write to the file.
+		for (int i = 0; i < newSize; i++) { // Loops through the amount of integers to write to the file.
+			pw.println(currentScores.get(currentScores.size() - 1 - i)); // Writes the integer at the specified index starting from the end of the list.
+		}
+
+		pw.close(); // Closes the print writer.
 	}
 }
